@@ -17,6 +17,7 @@ export class DonationAlert extends React.Component {
         id: null,
         author: null,
         amountInCents: null,
+        played: true,
       },
     }
 
@@ -39,17 +40,62 @@ export class DonationAlert extends React.Component {
           id: this.props.data.id,
           author: this.props.data.author,
           amountInCents: this.props.data.donated_amount_in_cents,
+          message: this.props.data.message,
+          played: true,
         },
       })
       if (this.timeout) clearInterval(this.timeout)
       this.timeout = window.setTimeout(() => this.setState({hidden: true}), this.state.duration * 1000)
+      
 
-      if (this.audioElement) this.audioElement.play()
     }
   }
 
   render() {
     if (this.state.hidden) return null
+    console.log("New Donation")
+    var amount = parseInt(this.state.data.amountInCents)
+    console.log("amount as number: " + amount)
+    
+    console.log("Volume before checks: " + this.audioElement.volume)
+    if(amount<500){
+      this.audioElement.volume = 0.2
+      console.log(">500")
+    }
+    if(amount>500){
+      this.audioElement.volume = 0.3
+      console.log(">500")
+    }
+    if(amount>=1000){
+      this.audioElement.volume = 0.5
+      console.log(">=1000")
+    }
+    if(amount>=1500){
+      this.audioElement.volume = 0.7
+      console.log(">=1500")
+    }
+    if(amount>=2000){
+      this.audioElement.volume = 0.9
+      console.log(">=2000")
+    }
+    if(amount>2500){
+      this.audioElement.volume = 1
+      console.log(">2500")
+    }
+    console.log("Volume after checks: " + this.audioElement.volume)
+    
+    if (this.audioElement) {
+      this.audioElement.play()
+    }
+    if(this.state.data.played){
+      let tts = new SpeechSynthesisUtterance(this.state.data.message);
+      tts.lang="de-DE";
+      tts.volume = 0.6;
+      console.log("tts fired");
+      window.speechSynthesis.speak(working);
+      this.state.data.played = false;
+    }
+    
     return <div>
       <Gif src={this.state.gif} height={this.state.gifHeight} />
       <br />
